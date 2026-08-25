@@ -11,5 +11,8 @@
     "build": "pnpm --filter @oiper/snippets exec tsdown --config ./tsdown.config.ts",
     "dev": "pnpm --filter @oiper/snippets exec tsdown --config ./tsdown.config.ts --watch",
     "start": "pnpm --filter @oiper/snippets exec tsx --watch ./src/index.ts"
+  },
+  "devDependencies": {
+    "vitest": "^4.1.11"
   }
 }
