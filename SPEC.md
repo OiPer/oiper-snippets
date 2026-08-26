@@ -2,7 +2,9 @@
 
 ## Overview
 
-OiPer Snippets applies configured snippets to an input string.
+This is a general-purpose library for applying configured snippets to an input
+string. It is independent of any application, input source, or output
+destination.
 
 This specification covers both libraries:
 
@@ -121,6 +123,11 @@ Regex matchers:
 
 The body is inserted verbatim. Regex captures such as `$1` are not expanded.
 Inserted bodies are not scanned again, so snippets do not recurse or chain.
+
+> Implementation note: Keep the cursor on the original input. After a match,
+> advance it by the matched input length, append the body directly to the
+> output, and never run matchers against that body.
+
 Input and output are not trimmed or Unicode-normalized.
 
 ## Regex Standard
@@ -162,6 +169,5 @@ before release.
 ## Non-Goals
 
 The libraries do not provide configuration storage, JSON/JSONC file parsing,
-CRUD, UI behavior, recursive expansion, capture interpolation, templates,
-automatic word boundaries, or integration with transcription and text
-injection.
+CRUD, UI behavior, recursive expansion, capture interpolation, templates, or
+automatic word boundaries.
