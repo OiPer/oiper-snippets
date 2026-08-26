@@ -21,10 +21,7 @@ A configuration is an ordered array of snippets:
 ```json
 [
   {
-    "when": [
-      { "value": "brb" },
-      { "regex": "\\bbr+b\\b", "flags": "i" }
-    ],
+    "when": [{ "value": "brb" }, { "regex": "\\bbr+b\\b", "flags": "i" }],
     "body": "be right back"
   }
 ]
