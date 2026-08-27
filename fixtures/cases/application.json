@@ -1,0 +1,71 @@
+[
+  {
+    "id": "empty-configuration",
+    "config": [],
+    "input": "unchanged",
+    "expected": {
+      "kind": "output",
+      "value": "unchanged"
+    }
+  },
+  {
+    "id": "literal-case-insensitive",
+    "config": [
+      {
+        "when": [{ "value": "brb" }],
+        "body": "be right back"
+      }
+    ],
+    "input": "BRB!",
+    "expected": {
+      "kind": "output",
+      "value": "be right back!"
+    }
+  },
+  {
+    "id": "earlier-matcher-wins",
+    "config": [
+      {
+        "when": [{ "value": "a" }, { "value": "ab" }],
+        "body": "first"
+      }
+    ],
+    "input": "ab",
+    "expected": {
+      "kind": "output",
+      "value": "firstb"
+    }
+  },
+  {
+    "id": "inserted-body-is-not-rescanned",
+    "config": [
+      {
+        "when": [{ "value": "a" }],
+        "body": "b"
+      },
+      {
+        "when": [{ "value": "b" }],
+        "body": "c"
+      }
+    ],
+    "input": "a",
+    "expected": {
+      "kind": "output",
+      "value": "b"
+    }
+  },
+  {
+    "id": "regex-case-insensitive",
+    "config": [
+      {
+        "when": [{ "regex": "\\bbr+b\\b", "flags": "i" }],
+        "body": "be right back"
+      }
+    ],
+    "input": "BRRB",
+    "expected": {
+      "kind": "output",
+      "value": "be right back"
+    }
+  }
+]
