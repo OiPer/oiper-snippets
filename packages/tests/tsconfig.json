@@ -9,5 +9,5 @@
     "skipLibCheck": true,
     "paths": { "@/*": ["./src/*"] }
   },
-  "include": ["src", "vitest.config.mts"]
+  "include": ["src", "vitest.config.ts"]
 }
