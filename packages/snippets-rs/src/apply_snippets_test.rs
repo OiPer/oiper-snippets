@@ -19,17 +19,40 @@ fn read_json(path: &Path) -> Value {
 }
 
 fn fixture_paths() -> Vec<PathBuf> {
-    let mut paths = fs::read_dir(fixture_root().join("cases"))
+    let mut paths = fs::read_dir(fixture_root().join("snippets"))
         .expect("failed to read fixture directory")
         .map(|entry| entry.expect("failed to read fixture entry").path())
         .filter(|path| {
-            path.extension()
-                .is_some_and(|extension| extension == "json")
+            path.file_name().is_some_and(|name| name != "schema.json")
+                && path
+                    .extension()
+                    .is_some_and(|extension| extension == "json")
         })
         .collect::<Vec<_>>();
 
     paths.sort();
     paths
+}
+
+#[test]
+fn validates_the_fixtures() {
+    let schema = read_json(&fixture_root().join("snippets/schema.json"));
+    let validator = jsonschema::validator_for(&schema)
+        .unwrap_or_else(|error| panic!("failed to compile fixture schema: {error}"));
+    let fixture_paths = fixture_paths();
+
+    assert!(!fixture_paths.is_empty(), "no fixture files found");
+
+    for fixture_path in fixture_paths {
+        let fixture = read_json(&fixture_path);
+
+        if let Err(error) = validator.validate(&fixture) {
+            panic!(
+                "{} does not match the schema: {error}",
+                fixture_path.display()
+            );
+        }
+    }
 }
 
 #[test]
@@ -39,27 +62,21 @@ fn applies_every_output_fixture() {
     for fixture_path in fixture_paths() {
         let fixture = read_json(&fixture_path);
 
-        for test_case in fixture.as_array().expect("fixture must be an array") {
-            let expected = &test_case["expected"];
-
-            if expected["kind"] == "error" {
-                continue;
-            }
-
+        for (description, test_case) in fixture.as_object().expect("fixture must be an object") {
             case_count += 1;
 
-            let case_id = test_case["id"].as_str().expect("case ID must be a string");
             let input = test_case["input"].as_str().expect("input must be a string");
-            let config = parse_config(&test_case["config"])
-                .unwrap_or_else(|error| panic!("{case_id}: expected a valid config, got: {error}"));
-            let expected_output = expected["value"]
+            let config = parse_config(&test_case["config"]).unwrap_or_else(|error| {
+                panic!("{description}: expected a valid config, got: {error}")
+            });
+            let output = test_case["output"]
                 .as_str()
-                .expect("expected value must be a string");
+                .expect("output must be a string");
 
             assert_eq!(
                 apply_snippets(input, &config),
-                expected_output,
-                "{case_id}: unexpected output"
+                output,
+                "{description}: unexpected output"
             );
         }
     }

@@ -1,15 +1,10 @@
-[
-  {
-    "id": "empty-configuration",
+{
+  "leaves input unchanged with an empty configuration": {
     "config": [],
     "input": "unchanged",
-    "expected": {
-      "kind": "output",
-      "value": "unchanged"
-    }
+    "output": "unchanged"
   },
-  {
-    "id": "literal-case-insensitive",
+  "matches literals case-insensitively": {
     "config": [
       {
         "when": [{ "value": "brb" }],
@@ -17,13 +12,9 @@
       }
     ],
     "input": "BRB!",
-    "expected": {
-      "kind": "output",
-      "value": "be right back!"
-    }
+    "output": "be right back!"
   },
-  {
-    "id": "earlier-matcher-wins",
+  "uses the first matching matcher": {
     "config": [
       {
         "when": [{ "value": "a" }, { "value": "ab" }],
@@ -31,13 +22,9 @@
       }
     ],
     "input": "ab",
-    "expected": {
-      "kind": "output",
-      "value": "firstb"
-    }
+    "output": "firstb"
   },
-  {
-    "id": "inserted-body-is-not-rescanned",
+  "does not rescan inserted bodies": {
     "config": [
       {
         "when": [{ "value": "a" }],
@@ -49,13 +36,9 @@
       }
     ],
     "input": "a",
-    "expected": {
-      "kind": "output",
-      "value": "b"
-    }
+    "output": "b"
   },
-  {
-    "id": "regex-case-insensitive",
+  "matches regular expressions case-insensitively": {
     "config": [
       {
         "when": [{ "regex": "\\bbr+b\\b", "flags": "i" }],
@@ -63,9 +46,6 @@
       }
     ],
     "input": "BRRB",
-    "expected": {
-      "kind": "output",
-      "value": "be right back"
-    }
+    "output": "be right back"
   }
-]
+}
