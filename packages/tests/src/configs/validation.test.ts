@@ -1,55 +1,81 @@
-import { oiperRs, oiperTs, type JsonValue } from '@/lib'
-import { describe, expect, it } from 'vitest'
+import { oiperRs, oiperTs } from '@/lib'
+import { expect, it } from 'vitest'
 
-interface Implementation {
-  name: string
-  validateConfig(config: JsonValue): void
-}
+it('TypeScript rejects a configuration that is not an array', () => {
+  expect(() => oiperTs.parseConfig({})).toThrow()
+})
 
-const invalidConfigs = {
-  'requires configuration to be an array': {},
-  'requires at least one matcher': [{ when: [], body: 'replacement' }],
-  'rejects blank literals': [
-    {
-      when: [{ value: '   ' }],
-      body: 'replacement',
-    },
-  ],
-  'rejects duplicate literals ignoring case': [
-    {
-      when: [{ value: 'brb' }],
-      body: 'first',
-    },
-    {
-      when: [{ value: 'BRB' }],
-      body: 'second',
-    },
-  ],
-  'rejects unsupported regex flags': [
-    {
-      when: [{ regex: 'brb', flags: 'g' }],
-      body: 'replacement',
-    },
-  ],
-} satisfies Record<string, JsonValue>
+it('TypeScript rejects a snippet without a matcher', () => {
+  expect(() =>
+    oiperTs.parseConfig([{ when: [], body: 'replacement' }])
+  ).toThrow()
+})
 
-const implementations = [
-  {
-    name: 'TypeScript',
-    validateConfig(config) {
-      oiperTs.parseConfig(config)
-    },
-  },
-  {
-    name: 'Rust',
-    validateConfig(config) {
-      oiperRs.validateConfig(JSON.stringify(config))
-    },
-  },
-] satisfies Implementation[]
+it('TypeScript rejects a blank literal', () => {
+  expect(() =>
+    oiperTs.parseConfig([
+      {
+        when: [{ value: '   ' }],
+        body: 'replacement',
+      },
+    ])
+  ).toThrow()
+})
 
-describe.each(implementations)('$name configuration', (implementation) => {
-  it.each(Object.entries(invalidConfigs))('%s', (_description, config) => {
-    expect(() => implementation.validateConfig(config)).toThrow()
-  })
+it('TypeScript rejects duplicate literals ignoring case', () => {
+  expect(() =>
+    oiperTs.parseConfig([
+      {
+        when: [{ value: 'brb' }],
+        body: 'first',
+      },
+      {
+        when: [{ value: 'BRB' }],
+        body: 'second',
+      },
+    ])
+  ).toThrow()
+})
+
+it('TypeScript rejects an unsupported regex flag', () => {
+  expect(() =>
+    oiperTs.parseConfig([
+      {
+        when: [{ regex: 'brb', flags: 'g' }],
+        body: 'replacement',
+      },
+    ])
+  ).toThrow()
+})
+
+it('Rust rejects a configuration that is not an array', () => {
+  expect(() => oiperRs.validateConfig('{}')).toThrow()
+})
+
+it('Rust rejects a snippet without a matcher', () => {
+  expect(() =>
+    oiperRs.validateConfig('[{"when":[],"body":"replacement"}]')
+  ).toThrow()
+})
+
+it('Rust rejects a blank literal', () => {
+  expect(() =>
+    oiperRs.validateConfig('[{"when":[{"value":"   "}],"body":"replacement"}]')
+  ).toThrow()
+})
+
+it('Rust rejects duplicate literals ignoring case', () => {
+  expect(() =>
+    oiperRs.validateConfig(
+      '[{"when":[{"value":"brb"}],"body":"first"},{"when":[{"value":"BRB"}],"body":"second"}]'
+    )
+  ).toThrow()
+})
+
+it('Rust rejects an unsupported regex flag', () => {
+  expect(() =>
+    oiperRs.validateConfig(
+      '[{"when":[{"regex":"brb","flags":"g"}],"body":"replacement"}]'
+    )
+  ).toThrow()
 })

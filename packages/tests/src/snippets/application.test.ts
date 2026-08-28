@@ -1,88 +1,108 @@
-import { oiperRs, oiperTs, type JsonValue } from '@/lib'
-import { describe, expect, it } from 'vitest'
+import { oiperRs, oiperTs } from '@/lib'
+import { expect, it } from 'vitest'
 
-interface ApplicationCase {
-  config: JsonValue
-  input: string
-  output: string
-}
+it('TypeScript leaves input unchanged with an empty configuration', () => {
+  expect(oiperTs.applySnippets('unchanged', oiperTs.parseConfig([]))).toBe(
+    'unchanged'
+  )
+})
 
-interface Implementation {
-  name: string
-  applySnippets(config: JsonValue, input: string): string
-}
-
-const applicationCases = {
-  'leaves input unchanged with an empty configuration': {
-    config: [],
-    input: 'unchanged',
-    output: 'unchanged',
-  },
-  'matches literals case-insensitively': {
-    config: [
-      {
-        when: [{ value: 'brb' }],
-        body: 'be right back',
-      },
-    ],
-    input: 'BRB!',
-    output: 'be right back!',
-  },
-  'uses the first matching matcher': {
-    config: [
-      {
-        when: [{ value: 'a' }, { value: 'ab' }],
-        body: 'first',
-      },
-    ],
-    input: 'ab',
-    output: 'firstb',
-  },
-  'does not rescan inserted bodies': {
-    config: [
-      {
-        when: [{ value: 'a' }],
-        body: 'b',
-      },
-      {
-        when: [{ value: 'b' }],
-        body: 'c',
-      },
-    ],
-    input: 'a',
-    output: 'b',
-  },
-  'matches regular expressions case-insensitively': {
-    config: [
-      {
-        when: [{ regex: '\\bbr+b\\b', flags: 'i' }],
-        body: 'be right back',
-      },
-    ],
-    input: 'BRRB',
-    output: 'be right back',
-  },
-} satisfies Record<string, ApplicationCase>
-
-const implementations = [
-  {
-    name: 'TypeScript',
-    applySnippets(config, input) {
-      return oiperTs.applySnippets(input, oiperTs.parseConfig(config))
-    },
-  },
-  {
-    name: 'Rust',
-    applySnippets(config, input) {
-      return oiperRs.applySnippets(JSON.stringify(config), input)
-    },
-  },
-] satisfies Implementation[]
-
-describe.each(implementations)('$name snippets', (implementation) => {
-  it.each(Object.entries(applicationCases))('%s', (_description, testCase) => {
-    expect(implementation.applySnippets(testCase.config, testCase.input)).toBe(
-      testCase.output
+it('TypeScript matches literals case-insensitively', () => {
+  expect(
+    oiperTs.applySnippets(
+      'BRB!',
+      oiperTs.parseConfig([
+        {
+          when: [{ value: 'brb' }],
+          body: 'be right back',
+        },
+      ])
     )
-  })
+  ).toBe('be right back!')
+})
+
+it('TypeScript uses the first matching matcher', () => {
+  expect(
+    oiperTs.applySnippets(
+      'ab',
+      oiperTs.parseConfig([
+        {
+          when: [{ value: 'a' }, { value: 'ab' }],
+          body: 'first',
+        },
+      ])
+    )
+  ).toBe('firstb')
+})
+
+it('TypeScript does not rescan inserted bodies', () => {
+  expect(
+    oiperTs.applySnippets(
+      'a',
+      oiperTs.parseConfig([
+        {
+          when: [{ value: 'a' }],
+          body: 'b',
+        },
+        {
+          when: [{ value: 'b' }],
+          body: 'c',
+        },
+      ])
+    )
+  ).toBe('b')
+})
+
+it('TypeScript matches regular expressions case-insensitively', () => {
+  expect(
+    oiperTs.applySnippets(
+      'BRRB',
+      oiperTs.parseConfig([
+        {
+          when: [{ regex: '\\bbr+b\\b', flags: 'i' }],
+          body: 'be right back',
+        },
+      ])
+    )
+  ).toBe('be right back')
+})
+
+it('Rust leaves input unchanged with an empty configuration', () => {
+  expect(oiperRs.applySnippets('[]', 'unchanged')).toBe('unchanged')
+})
+
+it('Rust matches literals case-insensitively', () => {
+  expect(
+    oiperRs.applySnippets(
+      '[{"when":[{"value":"brb"}],"body":"be right back"}]',
+      'BRB!'
+    )
+  ).toBe('be right back!')
+})
+
+it('Rust uses the first matching matcher', () => {
+  expect(
+    oiperRs.applySnippets(
+      '[{"when":[{"value":"a"},{"value":"ab"}],"body":"first"}]',
+      'ab'
+    )
+  ).toBe('firstb')
+})
+
+it('Rust does not rescan inserted bodies', () => {
+  expect(
+    oiperRs.applySnippets(
+      '[{"when":[{"value":"a"}],"body":"b"},{"when":[{"value":"b"}],"body":"c"}]',
+      'a'
+    )
+  ).toBe('b')
+})
+
+it('Rust matches regular expressions case-insensitively', () => {
+  expect(
+    oiperRs.applySnippets(
+      '[{"when":[{"regex":"\\\\bbr+b\\\\b","flags":"i"}],"body":"be right back"}]',
+      'BRRB'
+    )
+  ).toBe('be right back')
 })

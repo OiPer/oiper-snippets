@@ -2,6 +2,7 @@
   "name": "@oiper/snippets",
   "version": "0.0.0",
   "sideEffects": false,
+  "private": false,
   "scripts": {
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
