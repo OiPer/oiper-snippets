@@ -1,6 +1,13 @@
-.PHONY: test ts\:lint ts\:typecheck ts\:test ts\:build ts\:dev rs\:test
+.PHONY: test tests\:build tests\:typecheck ts\:lint ts\:typecheck ts\:build ts\:dev
 
-test: ts\:test rs\:test
+test:
+	pnpm --filter @oiper/tests test
+
+tests\:build:
+	pnpm --filter @oiper/tests build
+
+tests\:typecheck: tests\:build
+	pnpm --filter @oiper/tests typecheck
 
 ts\:lint:
 	pnpm --filter @oiper/snippets lint
@@ -8,14 +15,8 @@ ts\:lint:
 ts\:typecheck:
 	pnpm --filter @oiper/snippets typecheck
 
-ts\:test:
-	pnpm --filter @oiper/snippets test
-
 ts\:build:
 	pnpm --filter @oiper/snippets build
 
 ts\:dev:
 	pnpm --filter @oiper/snippets dev
-
-rs\:test:
-	cargo test --manifest-path packages/snippets-rs/Cargo.toml

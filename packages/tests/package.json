@@ -1,0 +1,20 @@
+{
+  "name": "@oiper/tests",
+  "private": true,
+  "main": "index.js",
+  "types": "index.d.ts",
+  "scripts": {
+    "build": "napi build --platform",
+    "test": "napi build --platform && tsc --noEmit && vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@napi-rs/cli": "^3",
+    "@types/node": "^25",
+    "typescript": "^5",
+    "vitest": "^4.1.11"
+  },
+  "napi": {
+    "binaryName": "oiper-snippets-tests"
+  }
+}
