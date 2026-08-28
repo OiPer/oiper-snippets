@@ -59,7 +59,7 @@ jobs:
         env:
           CARGO_REGISTRY_TOKEN: ${{ steps.crates-io-auth.outputs.token }}
 
-      - name: Commit package versions
+      - name: Push package versions
         run: |
           git pull --rebase
           git push
