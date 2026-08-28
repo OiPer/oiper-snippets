@@ -1,6 +1,13 @@
 {
   "name": "@oiper/snippets",
   "version": "0.0.0",
+  "description": "A general-purpose library for applying configured snippets to input strings",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/OiPer/oiper-snippets.git",
+    "directory": "packages/snippets-ts"
+  },
   "sideEffects": false,
   "private": false,
   "scripts": {

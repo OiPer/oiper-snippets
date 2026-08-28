@@ -2,6 +2,9 @@
 name = "oiper-snippets"
 version = "0.0.0"
 edition = "2024"
+description = "A general-purpose library for applying configured snippets to input strings"
+license = "MIT"
+repository = "https://github.com/OiPer/oiper-snippets"
 
 [lib]
 path = "src/lib.rs"
