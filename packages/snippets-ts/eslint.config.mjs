@@ -109,16 +109,4 @@ export default [
       ],
     },
   },
-
-  {
-    files: ['**/*.test.ts'],
-    rules: {
-      '@typescript-eslint/no-unsafe-call': 0,
-      '@typescript-eslint/no-unsafe-assignment': 0,
-      '@typescript-eslint/no-unsafe-member-access': 0,
-      'import/no-extraneous-dependencies': 0,
-      '@typescript-eslint/no-require-imports': 0,
-      'import/no-anonymous-default-export': 0,
-    },
-  },
 ]
