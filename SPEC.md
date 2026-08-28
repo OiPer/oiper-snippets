@@ -155,12 +155,14 @@ use the Rust implementation through WebAssembly.
 
 ## Cross-Language Parity
 
-Both libraries use the same language-neutral JSON fixtures. The fixtures cover
-configuration validation, ordering, literals, regexes, flags, single-pass
-behavior, whitespace, and Unicode.
+The private `packages/tests` project owns the shared Vitest conformance suite.
+It calls the TypeScript implementation directly and the Rust implementation
+through a test-only N-API binding. Test cases cover configuration validation,
+ordering, literals, regexes, flags, single-pass behavior, whitespace, and
+Unicode.
 
-Every fixture must produce the same validation result and exact output in both
-libraries. Regex engine or Unicode-data upgrades must pass the shared fixtures
+Every case must produce the same validation result and exact output in both
+libraries. Regex engine or Unicode-data upgrades must pass the conformance suite
 before release.
 
 ## Non-Goals
