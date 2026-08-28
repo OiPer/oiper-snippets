@@ -1,4 +1,4 @@
-import type { Config } from './config'
+import type { Config } from './parse-config'
 
 interface Match {
   readonly body: string

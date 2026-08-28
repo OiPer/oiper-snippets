@@ -1,4 +1,4 @@
-use crate::config::Config;
+use crate::parse_config::Config;
 
 fn find_match<'a>(input: &str, cursor: usize, config: &'a Config) -> Option<(&'a str, usize)> {
     for snippet in &config.snippets {

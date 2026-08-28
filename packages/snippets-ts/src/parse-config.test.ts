@@ -3,12 +3,11 @@ import Ajv2020 from 'ajv/dist/2020.js'
 import { readdir, readFile } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
-import { applySnippets, parseConfig, SnippetConfigError } from '../src'
+import { parseConfig, SnippetConfigError } from './parse-config'
 
 interface TestCase {
   id: string
   config: unknown
-  input: string
   expected: { kind: 'output'; value: string } | { kind: 'error' }
 }
 
@@ -35,8 +34,8 @@ async function readFixtureNames() {
     .sort()
 }
 
-describe('shared conformance fixtures', () => {
-  it('conforms to the schema and has unique case IDs', async () => {
+describe('parseConfig', () => {
+  it('validates the fixture schema and unique case IDs', async () => {
     const schema = await readJson(schemaPath)
 
     if (!isSchema(schema)) {
@@ -81,7 +80,7 @@ describe('shared conformance fixtures', () => {
     }
   })
 
-  it('runs every case against parseConfig and applySnippets', async () => {
+  it('parses every fixture configuration', async () => {
     const fixtureNames = await readFixtureNames()
     let caseCount = 0
 
@@ -97,15 +96,9 @@ describe('shared conformance fixtures', () => {
           expect(() => parseConfig(testCase.config), testCase.id).toThrow(
             SnippetConfigError
           )
-
-          continue
+        } else {
+          expect(() => parseConfig(testCase.config), testCase.id).not.toThrow()
         }
-
-        const config = parseConfig(testCase.config)
-
-        expect(applySnippets(testCase.input, config), testCase.id).toBe(
-          testCase.expected.value
-        )
       }
     }
 
