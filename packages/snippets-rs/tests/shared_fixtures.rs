@@ -4,6 +4,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
+use oiper_snippets::{apply_snippets, parse_config};
 use serde_json::Value;
 
 fn fixture_root() -> PathBuf {
@@ -18,13 +19,8 @@ fn read_json(path: &Path) -> Value {
         .unwrap_or_else(|error| panic!("failed to parse {}: {error}", path.display()))
 }
 
-#[test]
-fn shared_fixtures_conform_to_schema_and_have_unique_case_ids() {
-    let fixture_root = fixture_root();
-    let schema = read_json(&fixture_root.join("schema.json"));
-    let validator = jsonschema::validator_for(&schema)
-        .unwrap_or_else(|error| panic!("failed to compile fixture schema: {error}"));
-    let mut fixture_paths = fs::read_dir(fixture_root.join("cases"))
+fn fixture_paths() -> Vec<PathBuf> {
+    let mut paths = fs::read_dir(fixture_root().join("cases"))
         .expect("failed to read fixture directory")
         .map(|entry| entry.expect("failed to read fixture entry").path())
         .filter(|path| {
@@ -32,9 +28,19 @@ fn shared_fixtures_conform_to_schema_and_have_unique_case_ids() {
                 .is_some_and(|extension| extension == "json")
         })
         .collect::<Vec<_>>();
+
+    paths.sort();
+    paths
+}
+
+#[test]
+fn shared_fixtures_conform_to_schema_and_have_unique_case_ids() {
+    let schema = read_json(&fixture_root().join("schema.json"));
+    let validator = jsonschema::validator_for(&schema)
+        .unwrap_or_else(|error| panic!("failed to compile fixture schema: {error}"));
+    let fixture_paths = fixture_paths();
     let mut case_ids = HashSet::new();
 
-    fixture_paths.sort();
     assert!(!fixture_paths.is_empty(), "no fixture files found");
 
     for fixture_path in fixture_paths {
@@ -64,5 +70,45 @@ fn shared_fixtures_conform_to_schema_and_have_unique_case_ids() {
 }
 
 #[test]
-#[ignore = "requires parse_config and apply_snippets"]
-fn runs_every_case_against_parse_config_and_apply_snippets() {}
+fn runs_every_case_against_parse_config_and_apply_snippets() {
+    let mut case_count = 0;
+
+    for fixture_path in fixture_paths() {
+        let fixture = read_json(&fixture_path);
+
+        for test_case in fixture.as_array().expect("fixture must be an array") {
+            let case_id = test_case["id"].as_str().expect("case ID must be a string");
+            let input = test_case["input"].as_str().expect("input must be a string");
+            let expected = &test_case["expected"];
+
+            case_count += 1;
+
+            let config = parse_config(&test_case["config"]);
+
+            if expected["kind"] == "error" {
+                assert!(
+                    config.is_err(),
+                    "{case_id}: expected a configuration error, got a valid config"
+                );
+
+                continue;
+            }
+
+            let config = match config {
+                Ok(config) => config,
+                Err(error) => panic!("{case_id}: expected a valid config, got: {error}"),
+            };
+            let expected_output = expected["value"]
+                .as_str()
+                .expect("expected value must be a string");
+
+            assert_eq!(
+                apply_snippets(input, &config),
+                expected_output,
+                "{case_id}: unexpected output"
+            );
+        }
+    }
+
+    assert!(case_count > 0, "no fixture cases found");
+}
