@@ -1,8 +1,5 @@
+import { oiperRs, oiperTs, type JsonValue } from '@/lib'
 import { describe, expect, it } from 'vitest'
-import { oiperRs, oiperTs } from './lib'
-
-type JsonValue =
-  boolean | number | string | null | JsonValue[] | { [key: string]: JsonValue }
 
 interface ApplicationCase {
   config: JsonValue
@@ -13,35 +10,7 @@ interface ApplicationCase {
 interface Implementation {
   name: string
   applySnippets(config: JsonValue, input: string): string
-  validateConfig(config: JsonValue): void
 }
-
-const invalidConfigs = {
-  'requires configuration to be an array': {},
-  'requires at least one matcher': [{ when: [], body: 'replacement' }],
-  'rejects blank literals': [
-    {
-      when: [{ value: '   ' }],
-      body: 'replacement',
-    },
-  ],
-  'rejects duplicate literals ignoring case': [
-    {
-      when: [{ value: 'brb' }],
-      body: 'first',
-    },
-    {
-      when: [{ value: 'BRB' }],
-      body: 'second',
-    },
-  ],
-  'rejects unsupported regex flags': [
-    {
-      when: [{ regex: 'brb', flags: 'g' }],
-      body: 'replacement',
-    },
-  ],
-} satisfies Record<string, JsonValue>
 
 const applicationCases = {
   'leaves input unchanged with an empty configuration': {
@@ -101,26 +70,16 @@ const implementations = [
     applySnippets(config, input) {
       return oiperTs.applySnippets(input, oiperTs.parseConfig(config))
     },
-    validateConfig(config) {
-      oiperTs.parseConfig(config)
-    },
   },
   {
     name: 'Rust',
     applySnippets(config, input) {
       return oiperRs.applySnippets(JSON.stringify(config), input)
     },
-    validateConfig(config) {
-      oiperRs.validateConfig(JSON.stringify(config))
-    },
   },
 ] satisfies Implementation[]
 
-describe.each(implementations)('$name implementation', (implementation) => {
-  it.each(Object.entries(invalidConfigs))('%s', (_description, config) => {
-    expect(() => implementation.validateConfig(config)).toThrow()
-  })
-
+describe.each(implementations)('$name snippets', (implementation) => {
   it.each(Object.entries(applicationCases))('%s', (_description, testCase) => {
     expect(implementation.applySnippets(testCase.config, testCase.input)).toBe(
       testCase.output

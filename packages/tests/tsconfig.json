@@ -6,7 +6,8 @@
     "noEmit": true,
     "moduleResolution": "bundler",
     "types": ["node"],
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "paths": { "@/*": ["./src/*"] }
   },
-  "include": ["src"]
+  "include": ["src", "vitest.config.mts"]
 }
