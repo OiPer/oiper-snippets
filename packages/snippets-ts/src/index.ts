@@ -1,2 +1,2 @@
 export { applySnippets } from './apply-snippets'
-export { parseConfig, SnippetConfigError, type Config } from './parse-config'
+export { SnippetConfigError, parseConfig, type Config } from './parse-config'

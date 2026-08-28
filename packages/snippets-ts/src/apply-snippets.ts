@@ -5,7 +5,11 @@ interface Match {
   readonly length: number
 }
 
-function findMatch(input: string, cursor: number, config: Config): Match | null {
+function findMatch(
+  input: string,
+  cursor: number,
+  config: Config
+): Match | null {
   for (const snippet of config.snippets) {
     for (const matcher of snippet.matchers) {
       matcher.regex.lastIndex = cursor

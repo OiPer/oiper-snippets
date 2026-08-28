@@ -4,6 +4,9 @@ ts-typecheck:
 ts-lint:
 	pnpm --filter @oiper/snippets lint
 
+ts-lint-fix:
+	pnpm --filter @oiper/snippets lint --fix
+
 rs-lint:
 	cargo clippy --manifest-path packages/snippets-rs/Cargo.toml --all-targets -- -D warnings
 	cargo clippy --manifest-path packages/tests/Cargo.toml --all-targets -- -D warnings
