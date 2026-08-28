@@ -1,6 +1,6 @@
 [package]
 name = "oiper-snippets"
-version = "0.0.0"
+version = "0.0.2"
 edition = "2024"
 description = "A general-purpose library for applying configured snippets to input strings"
 license = "MIT"
