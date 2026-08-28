@@ -2,3 +2,6 @@ node_modules/
 dist/
 target/
 Cargo.lock
+*.node
+packages/tests/index.d.ts
+packages/tests/index.js
